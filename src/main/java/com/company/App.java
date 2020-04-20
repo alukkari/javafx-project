@@ -45,6 +45,18 @@ public class App extends Application {
         alert.showAndWait();
     }
 
+    public void cutText(ActionEvent e) {
+        textAlue.cut();
+    }
+
+    public void copyText(ActionEvent e) {
+        textAlue.copy();
+    }
+
+    public void pasteText(ActionEvent e) {
+        textAlue.paste();
+    }
+
     @Override
     public void start(Stage stage) {
 
@@ -79,9 +91,9 @@ public class App extends Application {
         copy.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
         paste.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN));
 
-        cut.setOnAction(e -> System.out.println("Cut"));
-        copy.setOnAction(e -> System.out.println("Copy"));
-        paste.setOnAction(e -> System.out.println("Paste"));
+        cut.setOnAction(this::cutText);
+        copy.setOnAction(this::copyText);
+        paste.setOnAction(this::pasteText);
 
         edit.getItems().addAll(cut, copy, paste);
 
