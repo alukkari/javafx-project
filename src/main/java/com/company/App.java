@@ -40,7 +40,6 @@ public class App extends Application {
         stage.show();
 
         //Scene scene = new Scene(new Button("Click!"));
-
         //Group group = new Group(new Button("Hello"), new Button("World"));
         //Scene scene = new Scene(group, 640, 480);
         //stage.setScene(scene);
