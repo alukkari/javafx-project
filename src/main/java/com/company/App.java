@@ -9,9 +9,12 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.scene.*;
+
+import java.io.File;
 
 
 public class App extends Application {
@@ -33,14 +36,20 @@ public class App extends Application {
         System.exit(0);
     }
 
-    public void newValittu(ActionEvent e) {
-        System.out.println("new");
+    public void aboutValittu(ActionEvent e) {
+        System.out.println("About");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About App");
+        alert.setHeaderText(null);
+        alert.setContentText("Information about this App...");
+        alert.showAndWait();
     }
 
     @Override
     public void start(Stage stage) {
 
         MenuBar menubar = new MenuBar();
+        FileChooser fileChooser = new FileChooser();
 
         Menu file = new Menu("File");
         MenuItem newF = new MenuItem("New");
@@ -51,6 +60,13 @@ public class App extends Application {
         newF.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN));
         openF.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN));
         saveF.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN));
+
+        newF.setOnAction(e -> System.out.println("New"));
+        openF.setOnAction(e -> {
+            System.out.println("Open");
+            File selectedFile = fileChooser.showOpenDialog(stage);
+        });
+        saveF.setOnAction(e -> System.out.println("Save"));
 
         file.getItems().addAll(newF, openF, saveF, exit);
 
@@ -63,6 +79,10 @@ public class App extends Application {
         copy.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
         paste.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN));
 
+        cut.setOnAction(e -> System.out.println("Cut"));
+        copy.setOnAction(e -> System.out.println("Copy"));
+        paste.setOnAction(e -> System.out.println("Paste"));
+
         edit.getItems().addAll(cut, copy, paste);
 
         Menu run = new Menu("Run");
@@ -74,8 +94,9 @@ public class App extends Application {
         about.getItems().addAll(aboutApp);
 
         menubar.getMenus().addAll(file, edit, run, about);
-        newF.setOnAction(this::newValittu);
+
         exit.setOnAction(this::exitValittu);
+        about.setOnAction(this::aboutValittu);
 
         clearBtn = new Button("CLEAR");
         textAlue = new TextArea();
