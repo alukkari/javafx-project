@@ -33,25 +33,36 @@ public class App extends Application {
         System.exit(0);
     }
 
+    public void newValittu(ActionEvent e) {
+        System.out.println("new");
+    }
+
     @Override
     public void start(Stage stage) {
 
         MenuBar menubar = new MenuBar();
 
         Menu file = new Menu("File");
-        MenuItem newF = new MenuItem("New (ctrl+n)");
-        MenuItem openF = new MenuItem("Open (ctrl+o)");
-        MenuItem saveF = new MenuItem("Save (ctrl+s)");
+        MenuItem newF = new MenuItem("New");
+        MenuItem openF = new MenuItem("Open");
+        MenuItem saveF = new MenuItem("Save");
         MenuItem exit = new MenuItem("Exit");
 
         newF.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN));
+        openF.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN));
+        saveF.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN));
 
         file.getItems().addAll(newF, openF, saveF, exit);
 
         Menu edit = new Menu("Edit");
-        MenuItem cut = new MenuItem("Cut (ctrl+x)");
-        MenuItem copy = new MenuItem("Copy (ctrl+c)");
-        MenuItem paste = new MenuItem("Paste (ctrl+v)");
+        MenuItem cut = new MenuItem("Cut");
+        MenuItem copy = new MenuItem("Copy");
+        MenuItem paste = new MenuItem("Paste");
+
+        cut.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.SHORTCUT_DOWN));
+        copy.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
+        paste.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN));
+
         edit.getItems().addAll(cut, copy, paste);
 
         Menu run = new Menu("Run");
@@ -63,6 +74,7 @@ public class App extends Application {
         about.getItems().addAll(aboutApp);
 
         menubar.getMenus().addAll(file, edit, run, about);
+        newF.setOnAction(this::newValittu);
         exit.setOnAction(this::exitValittu);
 
         clearBtn = new Button("CLEAR");
