@@ -1,5 +1,6 @@
 package com.company;
 
+import com.company.util.FileHandler;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -34,6 +35,9 @@ public class App extends Application {
     private TextField fontSize;
     private ColorPicker colorPicker;
     private TextArea textAlue;
+    private FileChooser fileChooser;
+    private FileHandler fh;
+    private Stage stage;
 
     public App() {
         System.out.println("constructor");
@@ -79,7 +83,7 @@ public class App extends Application {
                 + ")";
     }
 
-    public void styleChange(){
+    public void styleChange() {
         String textFont = fontCBox.getValue().toString();
         int size = Integer.parseInt(fontSize.getText());
         Color value = colorPicker.getValue();
@@ -89,8 +93,30 @@ public class App extends Application {
         textAlue.positionCaret(textAlue.getText().length());
     }
 
+    public void newFile(ActionEvent e) {
+
+    }
+
+    public void openFile(ActionEvent e) {
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        fh = new FileHandler(selectedFile.getPath());
+        String content = fh.openF(selectedFile.getPath());
+        textAlue.setText(content);
+    }
+
+    public void saveFile(ActionEvent e) {
+        File file = fileChooser.showSaveDialog(stage);
+        String filePath = file.getAbsolutePath();
+        fh.setTextFile(filePath);
+
+        //fh.setTextFile("Tiedosto.txt");
+        fh.saveF(textAlue.getText());
+    }
+
     @Override
     public void start(Stage stage) {
+        fileChooser = new FileChooser();
+        fh = new FileHandler();
 
         //Locale locale = Locale.getDefault();
         Locale locale = new Locale("fi", "FI");
@@ -98,7 +124,6 @@ public class App extends Application {
         String title = labels.getString("title");
 
         MenuBar menubar = new MenuBar();
-        FileChooser fileChooser = new FileChooser();
 
         Menu file = new Menu("File");
         MenuItem newF = new MenuItem("New");
@@ -110,12 +135,16 @@ public class App extends Application {
         openF.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN));
         saveF.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN));
 
-        newF.setOnAction(e -> System.out.println("New"));
+        newF.setOnAction(this::newFile);
+
+        openF.setOnAction(this::openFile);
+        /*
         openF.setOnAction(e -> {
-            System.out.println("Open");
             File selectedFile = fileChooser.showOpenDialog(stage);
+            fh = new FileHandler(selectedFile.getPath());
         });
-        saveF.setOnAction(e -> System.out.println("Save"));
+         */
+        saveF.setOnAction(this::saveFile);
 
         file.getItems().addAll(newF, openF, saveF, exit);
 
