@@ -2,6 +2,8 @@ package com.company;
 
 import com.company.util.FileHandler;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
@@ -33,11 +35,16 @@ public class App extends Application {
     private Button clearBtn;
     private ComboBox fontCBox;
     private TextField fontSize;
+    private TextField searchBox;
+    private Button searchPreviousBtn;
+    private Button searchNextBtn;
+    private Button clearSBtn;
     private ColorPicker colorPicker;
     private TextArea textAlue;
     private FileChooser fileChooser;
     private FileHandler fh;
     private Stage stage;
+    private int fromIndex = 0;
 
     public App() {
         System.out.println("constructor");
@@ -94,6 +101,10 @@ public class App extends Application {
     }
 
     public void newFile(ActionEvent e) {
+        textAlue.setText("");
+        fontCBox.setValue("Arial");
+        fontSize.setText("12");
+        colorPicker.setValue(Color.valueOf("Black"));
 
     }
 
@@ -111,6 +122,51 @@ public class App extends Application {
 
         //fh.setTextFile("Tiedosto.txt");
         fh.saveF(textAlue.getText());
+    }
+
+    public void search(){
+         String searching = searchBox.getText();
+        if (searching.length() <= 0) {
+            return;
+        }
+
+        String content = textAlue.getText();
+        int i = content.indexOf(searching, 0);
+        if (i >= 0) {
+            int last = i + searching.length();
+            textAlue.selectRange(i,last);
+            fromIndex=last;
+        }
+    }
+
+    public void searchPrevious(){
+        String searching = searchBox.getText();
+        if (searching.length() <= 0) {
+            return;
+        }
+
+        fromIndex = (textAlue.getCaretPosition()-searching.length()-1);
+        String content = textAlue.getText();
+        int i = content.lastIndexOf(searching, fromIndex);
+        if (i >= 0) {
+            int last = i + searching.length();
+            textAlue.selectRange(i,last);
+        }
+    }
+
+    public void searchNext(){
+        String searching = searchBox.getText();
+        if (searching.length() <= 0) {
+            return;
+        }
+
+        fromIndex = textAlue.getCaretPosition();
+        String content = textAlue.getText();
+        int i = content.indexOf(searching, fromIndex);
+        if (i >= 0) {
+            int last = i + searching.length();
+            textAlue.selectRange(i,last);
+        }
     }
 
     @Override
@@ -138,12 +194,7 @@ public class App extends Application {
         newF.setOnAction(this::newFile);
 
         openF.setOnAction(this::openFile);
-        /*
-        openF.setOnAction(e -> {
-            File selectedFile = fileChooser.showOpenDialog(stage);
-            fh = new FileHandler(selectedFile.getPath());
-        });
-         */
+
         saveF.setOnAction(this::saveFile);
 
         file.getItems().addAll(newF, openF, saveF, exit);
@@ -179,10 +230,11 @@ public class App extends Application {
         textAlue = new TextArea();
 
         clearBtn = new Button("CLEAR");
-        clearBtn.setOnAction(actionEvent -> textAlue.setText(""));
+        clearBtn.setOnAction( e -> textAlue.setText(""));
 
         //FONT
         fontCBox = new ComboBox();
+        fontCBox.setPrefWidth(150);
         List<String> fontFamilies = Font.getFamilies();
         fontCBox.setItems(FXCollections.observableArrayList(fontFamilies));
         fontCBox.setOnAction(e -> styleChange());
@@ -196,13 +248,39 @@ public class App extends Application {
         colorPicker = new ColorPicker();
         colorPicker.setOnAction(e -> styleChange());
 
+        //SEARCH BOX
+        searchBox = new TextField();
+        searchBox.setPromptText("Search");
+        searchBox.setOnAction(e -> search());
+
+        searchPreviousBtn = new Button("<");
+        searchPreviousBtn.setOnAction(e -> searchPrevious());
+
+        searchNextBtn = new Button(">");
+        searchNextBtn.setOnAction(e -> searchNext());
+
+        //CLEAR SEARCH
+        clearSBtn = new Button("x");
+        clearSBtn.setDisable(true);
+        clearSBtn.setOnAction( e -> {
+            searchBox.setText("");
+            searchBox.requestFocus();
+        });
+        searchBox.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
+                clearSBtn.setDisable(searchBox.getText().length() ==0);
+            }
+        });
+
+
         //DEFAULT VALUES AT START
         fontCBox.setValue("Arial");
         fontSize.setText("12");
         colorPicker.setValue(Color.valueOf("Black"));
 
         ToolBar toolbar = new ToolBar();
-        toolbar.getItems().addAll(clearBtn, new Separator(), fontCBox, new Separator(), fontSize, new Separator(), colorPicker);
+        toolbar.getItems().addAll(clearBtn, new Separator(), fontCBox, new Separator(), fontSize, new Separator(), colorPicker, new Separator(), searchBox, searchPreviousBtn, searchNextBtn, clearSBtn);
         VBox ylapalkki = new VBox(menubar, toolbar);
 
         stage.setTitle(title);
@@ -218,7 +296,7 @@ public class App extends Application {
             }
         });
 
-        Scene scene = new Scene(borderP, 640, 480);
+        Scene scene = new Scene(borderP, 800, 600);
         stage.initStyle(StageStyle.DECORATED);
         stage.setScene(scene);
         stage.centerOnScreen();
