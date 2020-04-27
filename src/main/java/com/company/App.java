@@ -6,6 +6,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
@@ -42,6 +43,7 @@ public class App extends Application {
     private Button clearSBtn;
     private ColorPicker colorPicker;
     private TextArea textAlue;
+    private TextArea outputAlue;
     private FileChooser fileChooser;
     private FileHandler fh;
     private Stage stage;
@@ -239,9 +241,14 @@ public class App extends Application {
         about.setOnAction(this::aboutValittu);
 
         textAlue = new TextArea();
+        outputAlue = new TextArea();
 
         clearBtn = new Button("CLEAR");
-        clearBtn.setOnAction( e -> textAlue.setText(""));
+        clearBtn.setOnAction( e -> {
+            textAlue.setText("");
+            outputAlue.setText("");
+        });
+
 
         //FONT
         fontCBox = new ComboBox();
@@ -291,13 +298,28 @@ public class App extends Application {
         colorPicker.setValue(Color.valueOf("Black"));
 
         ToolBar toolbar = new ToolBar();
-        toolbar.getItems().addAll(clearBtn, new Separator(), fontCBox, new Separator(), fontSize, new Separator(), colorPicker, new Separator(), searchBox, searchPreviousBtn, searchNextBtn, clearSBtn);
+        toolbar.getItems().addAll(clearBtn, new Separator(), fontCBox, new Separator(), fontSize, new Separator(),
+                colorPicker, new Separator(), searchBox, searchPreviousBtn, searchNextBtn, clearSBtn);
         VBox ylapalkki = new VBox(menubar, toolbar);
+
+        //OUTPUT
+        outputAlue.setEditable(false);
+        outputAlue.setStyle("-fx-font-family: " + "Arial" + ";" + "-fx-font-size: " + "12" + ";" +
+                "-fx-text-fill: green" + ";" + "-fx-control-inner-background: " + "black" + ";");
+        outputAlue.setText("testingtestingtestingtestingtesting");
+        BorderPane borderP2 = new BorderPane();
+        borderP2.setTop(new Label("Output"));
+        borderP2.setCenter(outputAlue);
+
+        //SPLITPANE
+        SplitPane splitPane = new SplitPane();
+        splitPane.setOrientation(Orientation.VERTICAL);
+        splitPane.getItems().addAll(textAlue, borderP2);
 
         stage.setTitle(title);
         BorderPane borderP = new BorderPane();
         borderP.setTop(ylapalkki);
-        borderP.setCenter(textAlue);
+        borderP.setCenter(splitPane);
 
         textAlue.setOnKeyPressed(keyEvent -> {
             if(keyEvent.getCode() == KeyCode.TAB) {
