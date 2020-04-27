@@ -32,6 +32,7 @@ import java.util.ResourceBundle;
 
 public class App extends Application {
 
+    private MenuItem saveF;
     private Button clearBtn;
     private ComboBox fontCBox;
     private TextField fontSize;
@@ -113,14 +114,18 @@ public class App extends Application {
         fh = new FileHandler(selectedFile.getPath());
         String content = fh.openF(selectedFile.getPath());
         textAlue.setText(content);
+        saveF.setDisable(false);
     }
 
-    public void saveFile(ActionEvent e) {
+    public void saveAsFile(ActionEvent e) {
         File file = fileChooser.showSaveDialog(stage);
         String filePath = file.getAbsolutePath();
         fh.setTextFile(filePath);
+        fh.saveF(textAlue.getText());
+        saveF.setDisable(false);
+    }
 
-        //fh.setTextFile("Tiedosto.txt");
+    public void saveFile(ActionEvent e) {
         fh.saveF(textAlue.getText());
     }
 
@@ -183,21 +188,27 @@ public class App extends Application {
 
         Menu file = new Menu("File");
         MenuItem newF = new MenuItem("New");
-        MenuItem openF = new MenuItem("Open");
-        MenuItem saveF = new MenuItem("Save");
+        MenuItem openF = new MenuItem("Open...");
+        MenuItem saveAsF = new MenuItem("Save As...");
+        saveF = new MenuItem("Save");
+        saveF.setDisable(true);
         MenuItem exit = new MenuItem("Exit");
+        SeparatorMenuItem separator = new SeparatorMenuItem();
 
         newF.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN));
         openF.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN));
+        saveAsF.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN));
         saveF.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN));
 
         newF.setOnAction(this::newFile);
 
         openF.setOnAction(this::openFile);
 
+        saveAsF.setOnAction(this::saveAsFile);
+
         saveF.setOnAction(this::saveFile);
 
-        file.getItems().addAll(newF, openF, saveF, exit);
+        file.getItems().addAll(newF, openF, saveAsF, saveF, separator, exit);
 
         Menu edit = new Menu("Edit");
         MenuItem cut = new MenuItem("Cut");
