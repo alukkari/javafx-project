@@ -113,7 +113,7 @@ public class App extends Application {
 
     public void openFile(ActionEvent e) {
         File selectedFile = fileChooser.showOpenDialog(stage);
-        fh = new FileHandler(selectedFile.getPath());
+        fh = new FileHandler(selectedFile.getPath(), this);
         String content = fh.openF(selectedFile.getPath());
         textAlue.setText(content);
         saveF.setDisable(false);
@@ -131,7 +131,7 @@ public class App extends Application {
         fh.saveF(textAlue.getText());
     }
 
-    public void search(){
+    public void search() {
          String searching = searchBox.getText();
         if (searching.length() <= 0) {
             return;
@@ -146,7 +146,7 @@ public class App extends Application {
         }
     }
 
-    public void searchPrevious(){
+    public void searchPrevious() {
         String searching = searchBox.getText();
         if (searching.length() <= 0) {
             return;
@@ -161,7 +161,7 @@ public class App extends Application {
         }
     }
 
-    public void searchNext(){
+    public void searchNext() {
         String searching = searchBox.getText();
         if (searching.length() <= 0) {
             return;
@@ -174,6 +174,15 @@ public class App extends Application {
             int last = i + searching.length();
             textAlue.selectRange(i,last);
         }
+    }
+
+    public void showErrorMsg(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error Dialog");
+        //alert.setHeaderText("Look, an Error Dialog");
+        alert.setContentText(message);
+
+        alert.showAndWait();
     }
 
     @Override
