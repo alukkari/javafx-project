@@ -1,8 +1,5 @@
 package com.company.util;
 
-import com.company.App;
-import javafx.application.Platform;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;

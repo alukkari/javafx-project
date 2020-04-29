@@ -1,6 +1,7 @@
 package com.company;
 
 import com.company.util.FileHandler;
+import com.company.util.JavaCompiler;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -27,6 +28,9 @@ import javafx.stage.StageStyle;
 import javafx.scene.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -36,6 +40,7 @@ public class App extends Application {
 
     private MenuItem saveF;
     private Button clearBtn;
+    private Button runBtn;
     private ComboBox fontCBox;
     private TextField fontSize;
     private TextField searchBox;
@@ -209,6 +214,13 @@ public class App extends Application {
         alert.showAndWait();
     }
 
+    public void compAndRun() throws IOException, InterruptedException {
+        String file = fh.getTextFile();
+        JavaCompiler compiler = new JavaCompiler();
+        String output = compiler.compileAndRun(file);
+        outputAlue.setText(output);
+    }
+
     @Override
     public void start(Stage stage) {
         fileChooser = new FileChooser();
@@ -279,8 +291,19 @@ public class App extends Application {
         clearBtn = new Button("CLEAR");
         clearBtn.setOnAction( e -> {
             textAlue.setText("");
-            outputAlue.setText("");
+            //outputAlue.setText("");
         });
+
+        runBtn = new Button("RUN");
+        runBtn.setOnAction((e -> {
+            try {
+                compAndRun();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        }));
 
 
         //FONT
@@ -327,19 +350,19 @@ public class App extends Application {
 
         //DEFAULT VALUES AT START
         fontCBox.setValue("Arial");
-        fontSize.setText("12");
+        fontSize.setText("14");
         colorPicker.setValue(Color.valueOf("Black"));
 
         ToolBar toolbar = new ToolBar();
-        toolbar.getItems().addAll(clearBtn, new Separator(), fontCBox, new Separator(), fontSize, new Separator(),
+        toolbar.getItems().addAll(clearBtn, runBtn, new Separator(), fontCBox, new Separator(), fontSize, new Separator(),
                 colorPicker, new Separator(), searchBox, searchPreviousBtn, searchNextBtn, clearSBtn);
         VBox ylapalkki = new VBox(menubar, toolbar);
 
         //OUTPUT
         outputAlue.setEditable(false);
-        outputAlue.setStyle("-fx-font-family: " + "Arial" + ";" + "-fx-font-size: " + "12" + ";" +
+        outputAlue.setStyle("-fx-font-family: " + "Arial" + ";" + "-fx-font-size: " + "14" + ";" +
                 "-fx-text-fill: green" + ";" + "-fx-control-inner-background: " + "black" + ";");
-        outputAlue.setText("testingtestingtestingtestingtesting");
+        outputAlue.setText("");
         BorderPane borderP2 = new BorderPane();
         borderP2.setTop(new Label("Output"));
         borderP2.setCenter(outputAlue);
