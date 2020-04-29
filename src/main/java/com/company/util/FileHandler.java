@@ -1,6 +1,7 @@
 package com.company.util;
 
 import com.company.App;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -12,16 +13,13 @@ public class FileHandler {
 
     private String textFile;
     private String content;
-    private App app;
-
 
     public FileHandler() {
 
     }
 
-    public FileHandler(String textFile, App app) {
+    public FileHandler(String textFile) {
         setTextFile(textFile);
-        this.app = app;
     }
 
     public String getTextFile() {
@@ -36,13 +34,13 @@ public class FileHandler {
     public String openF(String textFile) {
         try {
             content = Files.readString(Paths.get(textFile), Charset.defaultCharset());
-        } catch(IOException e) {
+            return content;
+        } catch (IOException e) {
             System.out.println("problem with IO");
-            e.printStackTrace();
-            app.showErrorMsg("Error opening file!");
+            return null;
         }
-        return content;
     }
+
 
     // Saves the content to given file path
     public void saveF(String content) {
@@ -51,7 +49,6 @@ public class FileHandler {
         } catch(IOException e) {
             System.out.println("problem with IO");
             e.printStackTrace();
-            app.showErrorMsg("Error saving file!");
         }
     }
 }

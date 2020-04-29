@@ -2,6 +2,7 @@ package com.company;
 
 import com.company.util.FileHandler;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -113,22 +114,45 @@ public class App extends Application {
 
     public void openFile(ActionEvent e) {
         File selectedFile = fileChooser.showOpenDialog(stage);
-        fh = new FileHandler(selectedFile.getPath(), this);
-        String content = fh.openF(selectedFile.getPath());
-        textAlue.setText(content);
-        saveF.setDisable(false);
+        Thread t = new Thread(() -> {
+            fh = new FileHandler(selectedFile.getPath());
+            String content = fh.openF(selectedFile.getPath());
+
+            if(content != null) {
+                Platform.runLater(() -> {
+                    textAlue.setText(content);
+                    saveF.setDisable(false);
+                });
+            } else {
+                Platform.runLater(() -> {
+                    showErrorMsg("Error loading file!");
+                });
+            }
+        });
+        t.start();
     }
 
     public void saveAsFile(ActionEvent e) {
         File file = fileChooser.showSaveDialog(stage);
-        String filePath = file.getAbsolutePath();
-        fh.setTextFile(filePath);
-        fh.saveF(textAlue.getText());
-        saveF.setDisable(false);
+        Thread t = new Thread(() -> {
+            String filePath = file.getAbsolutePath();
+            fh.setTextFile(filePath);
+
+            Platform.runLater(() -> {
+                fh.saveF(textAlue.getText());
+                saveF.setDisable(false);
+            });
+        });
+        t.start();
     }
 
     public void saveFile(ActionEvent e) {
-        fh.saveF(textAlue.getText());
+        Thread t = new Thread(() -> {
+            Platform.runLater(() -> {
+                fh.saveF(textAlue.getText());
+            });
+        });
+        t.start();
     }
 
     public void search() {
