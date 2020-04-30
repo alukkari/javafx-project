@@ -2,6 +2,7 @@ package com.company;
 
 import com.company.util.FileHandler;
 import com.company.util.JavaCompiler;
+import javafx.animation.RotateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -11,10 +12,14 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -26,8 +31,13 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.scene.*;
+import javafx.util.Duration;
 
+import javax.swing.text.html.ImageView;
+import java.awt.*;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,6 +49,7 @@ import java.util.ResourceBundle;
 public class App extends Application {
 
     private MenuItem saveF;
+    private MenuItem compile;
     private Button clearBtn;
     private Button runBtn;
     private ComboBox fontCBox;
@@ -127,6 +138,8 @@ public class App extends Application {
                 Platform.runLater(() -> {
                     textAlue.setText(content);
                     saveF.setDisable(false);
+                    runBtn.setDisable(false);
+                    compile.setDisable(false);
                 });
             } else {
                 Platform.runLater(() -> {
@@ -208,9 +221,7 @@ public class App extends Application {
     public void showErrorMsg(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error Dialog");
-        //alert.setHeaderText("Look, an Error Dialog");
         alert.setContentText(message);
-
         alert.showAndWait();
     }
 
@@ -219,6 +230,24 @@ public class App extends Application {
         JavaCompiler compiler = new JavaCompiler();
         String output = compiler.compileAndRun(file);
         outputAlue.setText(output);
+    }
+
+    public void setEffect(Button b) {
+        Light.Distant light = new
+        Light.Distant();
+        light.setAzimuth(-135.0f);
+        Lighting l = new Lighting();
+        l.setLight(light);
+        l.setSurfaceScale(1.0f);
+        b.setEffect(l);
+    }
+
+    public void animateButton(Button b) {
+        RotateTransition rotateTransition = new  RotateTransition();
+        rotateTransition.setDuration(Duration.millis(500));
+        rotateTransition.setByAngle(360);
+        rotateTransition.setNode(b);
+        rotateTransition.play();
     }
 
     @Override
@@ -273,7 +302,19 @@ public class App extends Application {
         edit.getItems().addAll(cut, copy, paste);
 
         Menu run = new Menu("Run");
-        MenuItem compile = new MenuItem("Compile and Run");
+        compile = new MenuItem("Compile and Run");
+        compile.setDisable(true);
+
+        compile.setOnAction(e -> {
+            try {
+                compAndRun();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        });
+
         run.getItems().addAll(compile);
 
         Menu about = new Menu("About");
@@ -289,22 +330,30 @@ public class App extends Application {
         outputAlue = new TextArea();
 
         clearBtn = new Button("CLEAR");
+        setEffect(clearBtn);
         clearBtn.setOnAction( e -> {
             textAlue.setText("");
-            //outputAlue.setText("");
+            outputAlue.setText("");
         });
 
         runBtn = new Button("RUN");
+        setEffect(runBtn);
+        runBtn.setDisable(true);
         runBtn.setOnAction((e -> {
-            try {
-                compAndRun();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
+            Thread t = new Thread(() -> {
+                try {
+                    Platform.runLater(() -> {
+                        animateButton(runBtn);
+                    });
+                    compAndRun();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            });
+            t.start();
         }));
-
 
         //FONT
         fontCBox = new ComboBox();
@@ -328,13 +377,16 @@ public class App extends Application {
         searchBox.setOnAction(e -> search());
 
         searchPreviousBtn = new Button("<");
+        setEffect(searchPreviousBtn);
         searchPreviousBtn.setOnAction(e -> searchPrevious());
 
         searchNextBtn = new Button(">");
+        setEffect(searchNextBtn);
         searchNextBtn.setOnAction(e -> searchNext());
 
         //CLEAR SEARCH
         clearSBtn = new Button("x");
+        setEffect(clearSBtn);
         clearSBtn.setDisable(true);
         clearSBtn.setOnAction( e -> {
             searchBox.setText("");
@@ -347,14 +399,13 @@ public class App extends Application {
             }
         });
 
-
         //DEFAULT VALUES AT START
         fontCBox.setValue("Arial");
         fontSize.setText("14");
         colorPicker.setValue(Color.valueOf("Black"));
 
         ToolBar toolbar = new ToolBar();
-        toolbar.getItems().addAll(clearBtn, runBtn, new Separator(), fontCBox, new Separator(), fontSize, new Separator(),
+        toolbar.getItems().addAll(clearBtn, new Separator(), runBtn, new Separator(), fontCBox, new Separator(), fontSize, new Separator(),
                 colorPicker, new Separator(), searchBox, searchPreviousBtn, searchNextBtn, clearSBtn);
         VBox ylapalkki = new VBox(menubar, toolbar);
 
